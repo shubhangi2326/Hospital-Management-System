@@ -10,7 +10,7 @@ lerna-debug.log*
 # Dependency directories
 node_modules/
 
-# Build output
+# Build output (Mainly for frontend)
 dist/
 dist-ssr/
 
@@ -30,8 +30,3 @@ dist-ssr/
 *.njsproj
 *.sln
 *.sw?
-
-# Ignore optional lock files
-package-lock.json
-pnpm-lock.yaml
-yarn.lock
