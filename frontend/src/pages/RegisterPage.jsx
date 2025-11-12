@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
+
+import { registerUser } from '../api/authService';
 
 const RegisterPage = () => {
     const [username, setUsername] = useState('');
@@ -11,15 +12,18 @@ const RegisterPage = () => {
     const submitHandler = async (e) => {
         e.preventDefault();
         try {
-            const { data } = await axios.post('http://localhost:5000/api/users/register', { username, password, role });
+            // UPDATED: Seedha service function ko call kiya
+            const data = await registerUser({ username, password, role });
+
             localStorage.setItem('userInfo', JSON.stringify(data));
             navigate('/dashboard');
         } catch (error) {
             alert('Registration failed! User may already exist.');
-            console.error(error);
+            console.error(error.response ? error.response.data : error.message);
         }
     };
 
+    // JSX mein koi change nahi
     return (
         <div className="container mt-5">
             <div className="row justify-content-center">

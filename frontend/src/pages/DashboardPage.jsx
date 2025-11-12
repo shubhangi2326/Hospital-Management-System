@@ -1,9 +1,13 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { 
+    getDoctors, 
+    getBookedAppointments, 
+    bookAppointment, 
+    cancelAppointment 
+} from '../api/authService';
 
 const DashboardPage = () => {
-    // State
     const [user, setUser] = useState(null);
     const [doctors, setDoctors] = useState([]);
     const [appointments, setAppointments] = useState([]);
@@ -12,10 +16,9 @@ const DashboardPage = () => {
     const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
 
-    const fetchAppointments = useCallback(async (token) => {
+    const fetchAppointments = useCallback(async () => {
         try {
-            const config = { headers: { Authorization: `Bearer ${token}` } };
-            const { data } = await axios.get('http://localhost:5000/api/appointments', config);
+            const data = await getBookedAppointments();
             setAppointments(data);
         } catch (error) {
             console.error('Could not fetch appointments', error);
@@ -26,16 +29,22 @@ const DashboardPage = () => {
         const userInfo = JSON.parse(localStorage.getItem('userInfo'));
         if (!userInfo) {
             navigate('/login');
-        } else {
-            setUser(userInfo);
-            fetchAppointments(userInfo.token);
-            if (userInfo.role === 'Patient') {
-                const fetchDoctors = async () => {
-                    const { data } = await axios.get('http://localhost:5000/api/users/doctors');
+            return;
+        }
+        
+        setUser(userInfo);
+        fetchAppointments();
+
+        if (userInfo.role === 'Patient') {
+            const fetchDoctors = async () => {
+                try {
+                    const data = await getDoctors();
                     setDoctors(data);
-                };
-                fetchDoctors();
-            }
+                } catch (error) {
+                    console.error('Could not fetch doctors', error);
+                }
+            };
+            fetchDoctors();
         }
         setLoading(false);
     }, [navigate, fetchAppointments]);
@@ -43,32 +52,33 @@ const DashboardPage = () => {
     const bookAppointmentHandler = async (e) => {
         e.preventDefault();
         try {
-            const config = { headers: { Authorization: `Bearer ${user.token}` } };
-            await axios.post('http://localhost:5000/api/appointments/book', { doctorId: selectedDoctor, appointmentDate }, config);
+            await bookAppointment({ doctorId: selectedDoctor, appointmentDate });
             alert('Appointment booked successfully!');
-            fetchAppointments(user.token); // Refresh the list
+            fetchAppointments(); 
             setSelectedDoctor('');
             setAppointmentDate('');
         } catch (error) {
             alert('Failed to book appointment');
+            console.error(error);
         }
     };
     
     const cancelAppointmentHandler = async (id) => {
-        if (window.confirm('Are you sure?')) {
+        if (window.confirm('Are you sure you want to cancel this appointment?')) {
             try {
-                const config = { headers: { Authorization: `Bearer ${user.token}` } };
-                await axios.put(`http://localhost:5000/api/appointments/cancel/${id}`, {}, config);
-                fetchAppointments(user.token); // Refresh
+                await cancelAppointment(id);
+                alert('Appointment cancelled!');
+                fetchAppointments(); 
             } catch (error) {
                 alert('Failed to cancel appointment');
+                console.error(error);
             }
         }
     };
 
-
     if (loading || !user) return <div className="container text-center mt-5"><h2>Loading...</h2></div>;
 
+    
     return (
         <div className="container mt-4">
             <h2 className="mb-4">Welcome, {user.username} ({user.role})</h2>
