@@ -1,60 +1,63 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-
 import { registerUser } from '../api/authService';
+import { User, Lock, ArrowRight, ShieldCheck } from 'lucide-react';
 
 const RegisterPage = () => {
-    const [username, setUsername] = useState('');
-    const [password, setPassword] = useState('');
-    const [role, setRole] = useState('Patient');
+    const [formData, setFormData] = useState({ username: '', password: '', role: 'Patient' });
+    const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
     const submitHandler = async (e) => {
         e.preventDefault();
+        setLoading(true);
         try {
-            // UPDATED: Seedha service function ko call kiya
-            const data = await registerUser({ username, password, role });
-
+            const data = await registerUser(formData);
             localStorage.setItem('userInfo', JSON.stringify(data));
             navigate('/dashboard');
         } catch (error) {
-            alert('Registration failed! User may already exist.');
-            console.error(error.response ? error.response.data : error.message);
-        }
+            alert(error.response?.data?.message || 'Registration failed');
+        } finally { setLoading(false); }
     };
 
-    // JSX mein koi change nahi
     return (
-        <div className="container mt-5">
-            <div className="row justify-content-center">
-                <div className="col-md-6">
-                    <div className="card">
-                        <div className="card-body">
-                            <h2 className="card-title text-center mb-4">Register</h2>
-                            <form onSubmit={submitHandler}>
-                                <div className="mb-3">
-                                    <label className="form-label">Username</label>
-                                    <input type="text" className="form-control" value={username} onChange={(e) => setUsername(e.target.value)} required />
-                                </div>
-                                <div className="mb-3">
-                                    <label className="form-label">Password</label>
-                                    <input type="password" className="form-control" value={password} onChange={(e) => setPassword(e.target.value)} required />
-                                </div>
-                                <div className="mb-3">
-                                    <label className="form-label">Register as:</label>
-                                    <select className="form-select" value={role} onChange={(e) => setRole(e.target.value)}>
-                                        <option value="Patient">Patient</option>
-                                        <option value="Doctor">Doctor</option>
-                                    </select>
-                                </div>
-                                <button type="submit" className="btn btn-primary w-100">Register</button>
-                                <div className="mt-3 text-center">
-                                    Already have an account? <Link to="/login">Login here</Link>
-                                </div>
-                            </form>
+        <div className="min-h-screen flex items-center justify-center bg-[#f8fafc] px-4">
+            <div className="w-full max-w-md bg-white rounded-3xl shadow-xl p-8 border border-gray-100">
+                <div className="text-center mb-8">
+                    <h2 className="text-3xl font-bold text-gray-900 tracking-tight">Create Account</h2>
+                    <p className="text-gray-500 mt-2">Join the eDoc Healthcare System</p>
+                </div>
+                <form onSubmit={submitHandler} className="space-y-5">
+                    <div className="space-y-1">
+                        <label className="text-xs font-bold text-gray-500 uppercase ml-1">Username</label>
+                        <div className="relative">
+                            <User className="absolute left-3 top-3 text-gray-400" size={18} />
+                            <input type="text" className="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 focus:ring-4 focus:ring-blue-50 outline-none" 
+                            placeholder="Username" onChange={(e) => setFormData({...formData, username: e.target.value})} required />
                         </div>
                     </div>
-                </div>
+                    <div className="space-y-1">
+                        <label className="text-xs font-bold text-gray-500 uppercase ml-1">Password</label>
+                        <div className="relative">
+                            <Lock className="absolute left-3 top-3 text-gray-400" size={18} />
+                            <input type="password" className="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 focus:ring-4 focus:ring-blue-50 outline-none" 
+                            placeholder="••••••••" onChange={(e) => setFormData({...formData, password: e.target.value})} required />
+                        </div>
+                    </div>
+                    <div className="space-y-1">
+                        <label className="text-xs font-bold text-gray-500 uppercase ml-1">User Role</label>
+                        <select className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 font-medium outline-none" 
+                        value={formData.role} onChange={(e) => setFormData({...formData, role: e.target.value})}>
+                            <option value="Patient">Patient</option>
+                            <option value="Doctor">Doctor</option>
+                            <option value="Admin">Administrator</option>
+                        </select>
+                    </div>
+                    <button type="submit" disabled={loading} className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl shadow-lg transition-all flex items-center justify-center gap-2">
+                        {loading ? "Processing..." : "Register Now"} <ArrowRight size={18}/>
+                    </button>
+                </form>
+                <p className="mt-6 text-center text-sm text-gray-500">Already have an account? <Link to="/login" className="text-blue-600 font-bold hover:underline">Login</Link></p>
             </div>
         </div>
     );

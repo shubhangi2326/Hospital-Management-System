@@ -7,6 +7,7 @@ export const ENDPOINTS = {
     LOGIN: '/api/users/login',
     REGISTER: '/api/users/register',
     GET_DOCTORS: '/api/users/doctors',
+    GET_PATIENTS: '/api/users/patients',
 
     // Appointment endpoints
     GET_APPOINTMENTS: '/api/appointments',

@@ -35,6 +35,11 @@ export const getDoctors = async () => {
     return response.data;
 };
 
+
+export const getPatients = async () => {
+    const response = await axios.get(`${BASE_URL}${ENDPOINTS.GET_PATIENTS}`);
+    return response.data;
+};
 // --- Appointment Services ---
 
 // ==============================================================
