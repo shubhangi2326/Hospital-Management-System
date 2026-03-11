@@ -9,11 +9,30 @@ connectDB();
 
 const app = express();
 
-const frontendURL = process.env.FRONTEND_URL;
+// --- FIXED CORS CONFIGURATION ---
+const allowedOrigins = [
+    process.env.FRONTEND_URL,          // Your production URL from .env
+    'http://localhost:5173',           // Your local Vite development URL
+    'http://127.0.0.1:5173'            // Alternative local URL
+];
+
 app.use(cors({
-    origin: frontendURL,
-    credentials: true
+    origin: function (origin, callback) {
+        // Allow requests with no origin (like mobile apps or postman)
+        if (!origin) return callback(null, true);
+        
+        if (allowedOrigins.indexOf(origin) === -1) {
+            const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
+            return callback(new Error(msg), false);
+        }
+        return callback(null, true);
+    },
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization']
 }));
+// ---------------------------------
+
 app.use(express.json());
 
 app.get('/', (req, res) => {
@@ -25,4 +44,4 @@ app.use('/api/appointments', appointmentRoutes);
 
 const PORT = process.env.PORT || 5000;
 
-app.listen(PORT, console.log(`Server running on http://localhost:${PORT}`));
+app.listen(PORT, console.log(`Server running on port ${PORT}`));
