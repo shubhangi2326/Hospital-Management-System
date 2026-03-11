@@ -13,8 +13,8 @@ router.route('/')
 
 router.route('/book')
     .post(protect, bookAppointment);
-
+router.route('/:id').put(protect, updateAppointment);
 router.route('/cancel/:id')
     .put(protect, cancelAppointment);
-
+router.route('/:id').put(protect, updateAppointment).delete(protect, deleteAppointment);
 export default router;
