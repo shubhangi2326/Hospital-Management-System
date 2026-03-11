@@ -16,34 +16,7 @@ export const bookAppointment = async (req, res) => {
     }
 };
 
-// controllers/appointmentController.js
 
-export const getAppointments = async (req, res) => {
-    try {
-        let query = {};
-
-        // Role-based logic for 3 Panels
-        if (req.user.role === 'Patient') {
-            // Patient only sees their own bookings
-            query = { patient: req.user._id };
-        } else if (req.user.role === 'Doctor') {
-            // Doctor only sees appointments booked with them
-            query = { doctor: req.user._id };
-        } else if (req.user.role === 'Admin') {
-            // Admin sees EVERY appointment in the database
-            query = {}; 
-        }
-
-        const appointments = await Appointment.find(query)
-            .populate('doctor', 'username') // Fetch doctor name
-            .populate('patient', 'username') // Fetch patient name
-            .sort({ createdAt: -1 }); // Show latest first
-
-        res.json(appointments);
-    } catch (error) {
-        res.status(500).json({ message: 'Server Error', error: error.message });
-    }
-};
 
 // Cancel Appointment
 export const cancelAppointment = async (req, res) => {
@@ -70,31 +43,55 @@ export const cancelAppointment = async (req, res) => {
     }
 };
 
-// Update Appointment (Date/Time)
+// Get appointments based on Role
+export const getAppointments = async (req, res) => {
+    try {
+        let query = {};
+        if (req.user.role === 'Patient') query = { patient: req.user._id };
+        else if (req.user.role === 'Doctor') query = { doctor: req.user._id };
+        else if (req.user.role === 'Admin') query = {}; // Admin sees all
+
+        const appointments = await Appointment.find(query)
+            .populate('doctor', 'username')
+            .populate('patient', 'username')
+            .sort({ appointmentDate: -1 });
+        res.json(appointments);
+    } catch (error) {
+        res.status(500).json({ message: 'Server Error' });
+    }
+};
+
+// Update Appointment (Full CRUD for Admin)
 export const updateAppointment = async (req, res) => {
     try {
         const appointment = await Appointment.findById(req.params.id);
         if (appointment) {
             appointment.appointmentDate = req.body.appointmentDate || appointment.appointmentDate;
+            appointment.status = req.body.status || appointment.status;
+            // Admin can also reassign doctor/patient if needed
+            if (req.user.role === 'Admin') {
+                appointment.doctor = req.body.doctor || appointment.doctor;
+                appointment.patient = req.body.patient || appointment.patient;
+            }
             const updatedApp = await appointment.save();
             res.json(updatedApp);
         } else {
             res.status(404).json({ message: 'Appointment not found' });
         }
     } catch (error) {
-        res.status(500).json({ message: 'Server Error' });
+        res.status(500).json({ message: 'Update failed' });
     }
 };
 
-// Hard Delete Appointment
+// Delete Appointment (Hard Delete)
 export const deleteAppointment = async (req, res) => {
     try {
         const appointment = await Appointment.findById(req.params.id);
         if (appointment) {
             await appointment.deleteOne();
-            res.json({ message: 'Appointment deleted successfully' });
+            res.json({ message: 'Record deleted successfully' });
         } else {
-            res.status(404).json({ message: 'Appointment not found' });
+            res.status(404).json({ message: 'Not found' });
         }
     } catch (error) {
         res.status(500).json({ message: 'Server Error' });
