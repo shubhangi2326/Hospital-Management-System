@@ -62,3 +62,32 @@ export const cancelAppointment = async (appointmentId) => {
     const response = await axios.put(`${BASE_URL}${ENDPOINTS.CANCEL_APPOINTMENT}/${appointmentId}`, {}, config);
     return response.data;
 };
+
+export const deleteUserApi = async (id) => {
+    const config = getAuthHeader();
+    return await axios.delete(`${BASE_URL}/api/users/${id}`, config);
+};
+
+export const updateUserApi = async (id, userData) => {
+    const config = getAuthHeader();
+    return await axios.put(`${BASE_URL}/api/users/${id}`, userData, config);
+};
+
+
+export const createUserApi = async (userData) => {
+    const config = getAuthHeader();
+    const response = await axios.post(`${BASE_URL}/api/users/register`, userData, config);
+    return response.data;
+};
+
+
+
+export const updateAppointmentApi = async (id, data) => {
+    const config = getAuthHeader();
+    return await axios.put(`${BASE_URL}/api/appointments/${id}`, data, config);
+};
+
+export const deleteAppointmentApi = async (id) => {
+    const config = getAuthHeader();
+    return await axios.delete(`${BASE_URL}/api/appointments/${id}`, config);
+};

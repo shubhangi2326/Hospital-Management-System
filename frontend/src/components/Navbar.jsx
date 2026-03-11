@@ -78,17 +78,7 @@ const Navbar = () => {
                     <div className="flex items-center gap-4">
                         {userInfo ? (
                             <>
-                                <Link 
-                                    to="/dashboard" 
-                                    className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                                        location.pathname === '/dashboard' 
-                                        ? 'bg-blue-50 text-blue-600' 
-                                        : 'text-gray-600 hover:bg-gray-50'
-                                    }`}
-                                >
-                                    <LayoutDashboard size={18} />
-                                    Dashboard
-                                </Link>
+                                
                                 <button 
                                     onClick={logoutHandler}
                                     className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-red-600 hover:bg-red-50 transition-all border border-transparent hover:border-red-100"
