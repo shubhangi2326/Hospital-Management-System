@@ -50,7 +50,7 @@ const RegisterPage = () => {
                         value={formData.role} onChange={(e) => setFormData({...formData, role: e.target.value})}>
                             <option value="Patient">Patient</option>
                             <option value="Doctor">Doctor</option>
-                            <option value="Admin">Administrator</option>
+                            <option value="Admin">Admin</option>
                         </select>
                     </div>
                     <button type="submit" disabled={loading} className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl shadow-lg transition-all flex items-center justify-center gap-2">

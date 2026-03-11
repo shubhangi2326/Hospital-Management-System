@@ -91,3 +91,4 @@ export const deleteAppointmentApi = async (id) => {
     const config = getAuthHeader();
     return await axios.delete(`${BASE_URL}/api/appointments/${id}`, config);
 };
+
